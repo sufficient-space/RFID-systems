@@ -1,3 +1,4 @@
+### door-open-check.py	- Andrew R Gross  2019-04-02
 ### Check if door is open
 
 from time import sleep
@@ -12,9 +13,11 @@ doorswitch = 4
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(doorswitch, GPIO.IN)
 
+# Define starting states
 door_is_open = False
 prior_state = False
 
+# Open log file in append mode
 log_file = open('/home/pi/RFID/log-door.csv', 'a')
 
 try:
