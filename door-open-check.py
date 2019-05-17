@@ -1,6 +1,7 @@
 ### door-open-check.py	- Andrew R Gross  2019-04-02
 ### Check if door is open
 
+### Header
 from time import sleep
 import RPi.GPIO as GPIO
 import csv
@@ -20,27 +21,38 @@ prior_state = False
 # Open log file in append mode
 log_file = open('/home/pi/RFID/log-door.csv', 'a')
 
-try:
+try:	### Loop continuously
+
 	while True:
-		if GPIO.input(doorswitch):
+
+		### Check if the door is open
+		if GPIO.input(doorswitch):	# If door is open, define door_is_open as True
 			door_is_open = True
-		#	print('door switch is open!')
-		else:
+		else:				# if closed, define door_is_open as False
 			door_is_open = False
-		#	print('door switch is closed')
 
-		if door_is_open == prior_state:
+		### Check if door status has changed
+		if door_is_open == prior_state:	# If status hasn't changed, do nothing
 			pass
-		else: 
-		        time = datetime.datetime.now()
-			log_file = open('/home/pi/RFID/log-door.csv', 'a')
 
-			if door_is_open == True:
+		else: 				# If changed:
+		        time = datetime.datetime.now()				# deefine time
+			log_file = open('/home/pi/RFID/log-door.csv', 'a')	# Open log file in append mode
+
+			if door_is_open == True:				# If door just opened:
 				print('Door Opened')
-	        	        log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ', Door Opened \n')
-			else:
+				time_opened = time				# Define current time as last time opened
+				duration_closed = time_opened - time_closed	# Define duration since last opened
+				duration_closed_string = str(duration_closed)[0:10]
+		#		log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ', Door Opened \n')
+			else:							# If door just closed:
 				print('Door Closed')
-				log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ', Door Closed \n')
+				time_closed = time
+				duration_open = time_closed - time_opened
+				duration_open_string = str(duration_closed)[0:10]
+
+				log_file.write(time.strftime('%a %Y-%m-%d %H:%M:%S') + duration_closed_string + ', Door opened for:' + duration_open_string + '\n'
+		#		log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ', Door Closed \n')
 			os.system('rclone copy /home/pi/RFID/log-door.csv door-log3:door-access')
 		        print('Backup complete')
 
