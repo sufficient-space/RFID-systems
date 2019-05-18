@@ -85,7 +85,7 @@ while not program_done:
 	if len(door_whitelist) > 0:		# If the last line isn't blank
 		door_whitelist.write('\n')	# Add a blank line to the end
 						# In the blank line, add the new row
-	door_whitelist.write(ss + ',' + name_last + ',' + name_first ',' + nickname)
+	door_whitelist.write(ss + ',' + name_last + ',' + name_first ',' + nickname + 'standard_membership')
 	#time.strftime('%Y-%m-%d %H:%M:%S') + ',' + ss + ',' + names_list[pos] + ',Approved \n')
 	door_whitelist.close()
 
