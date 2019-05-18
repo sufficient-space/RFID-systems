@@ -35,8 +35,17 @@ name_first = raw_input()
 print('Please enter your last name:')
 name_last = raw_input()
 
-print('Please swipe your new RFID tag across the door RFID reader.')
+no_commas = False
+while no_commas == False
+	print('How would you like to be addressed by this system?'
+	nickname = raw_input()
+	if nicname.count(',') > 0:
+		print('Sorry, no commas.  Try again.')
+	else:
+		no_commas = True
 
+print('Please swipe your new RFID tag across the door RFID reader.')
+,,,
 
 ### Read RFID input
 
@@ -67,24 +76,20 @@ while not program_done:
 						shift = True	## if not a 2 then lookup the mapping
 					else:
 						ss += hid[ int(ord(c)) ]
-		
 	print ss
 	time = datetime.datetime.now()
 
-### Check whitelist
-	door_whitelist = open('/home/pi/RFID/keyed-members','a')
-	door_whitelist.write(ss + ',' + name_last + ',' + name_first)
+
+	### Open the whitelist to append
+	door_whitelist = open('/home/pi/RFID/keyed-members','ra')
+	if len(door_whitelist) > 0:		# If the last line isn't blank
+		door_whitelist.write('\n')	# Add a blank line to the end
+						# In the blank line, add the new row
+	door_whitelist.write(ss + ',' + name_last + ',' + name_first ',' + nickname)
 	#time.strftime('%Y-%m-%d %H:%M:%S') + ',' + ss + ',' + names_list[pos] + ',Approved \n')
 	door_whitelist.close()
 
-	print(name_first+ ' '+ name_last + ' added to user list!')
+	print(name_first + ' ' + name_last + '(' + nickname + ') added to user list!')
 	#break()
-#	if ID_list.count(ss) == 0:
-#		print('User not found.  Access Denied')
-#
-#		log_file = open('/home/pi/RFID/log-door.csv', 'a')
-#		log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ',' + ss + ', Unknown (ACCESS DENIED) \n')
-#		log_file.close()
-
 
 	program_done = True
