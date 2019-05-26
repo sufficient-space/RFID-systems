@@ -13,11 +13,37 @@ from time import sleep
 import pigpio
 from RPLCD.pigpio import CharLCD
 
-led = LED(17)
+door_lock = LED(17)
 
 pi = pigpio.pi()
 lcd = CharLCD(pi,pin_rs=15, pin_rw=18, pin_e=16, pins_data=[21, 22, 23, 24],cols=20, rows=4, dotsize=8,charmap='A02',auto_linebreaks=True)
 
+### Custom Functions
+
+def grant_access(nickname):
+    print('Welcome ' + nickname)
+    #lcd.write_string('Access Granted')
+    
+    # Unlock
+    door_lock.on()
+    sleep(3)
+    door_lock.off()
+    
+    # Write to log
+    log_file = open('/home/pi/RFID/log-door.csv', 'a')
+    log_file.write(time.strftime('%a,%Y-%m-%d,%H:%M:%S') + ',' + ss + ',' + names_list[pos] + ',Approved \n')
+    log_file.close()
+
+def deny_access():
+	print('User not found.  Access Denied')
+	#lcd.write_string('Access DENIED')
+	log_file = open('/home/pi/RFID/log-door.csv', 'a')
+	log_file.write(time.strftime('%a,%Y-%m-%d,%H:%M:%S') + ',' + ss + ', Unknown (ACCESS DENIED) \n')
+	log_file.close()
+
+
+def my_function():
+  print("Hello from a function")
 
 ### Import whitelist
 
@@ -85,9 +111,9 @@ while True:
 
 			print('Welcome ' + nicknames_list[pos])
 	#		lcd.write_string('Access Granted')
-			led.on()
+			door_lock.on()
 			sleep(2)
-			led.off()
+			door_lock.off()
 
 			log_file = open('/home/pi/RFID/log-door.csv', 'a')
 			log_file.write(time.strftime('%Y-%m-%d %H:%M%S') + ',' + ss ++ ',' + names_list[pos] + ',Approved \n')
@@ -99,9 +125,9 @@ while True:
 
 				print('Welcome ' + nicknames_list[pos])
 	#			lcd.write_string('Access Granted')
-				led.on()
+				door_lock.on()
 				sleep(2)
-				led.off()
+				door_lock.off()
 
 			else:					# If outside open hours, output to LCD
 				print('Please return during open hours')
