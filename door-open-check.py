@@ -17,7 +17,7 @@ GPIO.setup(doorswitch, GPIO.IN)
 # Define starting states
 door_is_open = False
 prior_state = False
-
+time_closed = datetime.datetime.now()
 # Open log file in append mode
 log_file = open('/home/pi/RFID/log-door.csv', 'a')
 
@@ -43,15 +43,15 @@ try:	### Loop continuously
 				print('Door Opened')
 				time_opened = time				# Define current time as last time opened
 				duration_closed = time_opened - time_closed	# Define duration since last opened
-				duration_closed_string = str(duration_closed)[0:10]
+				duration_closed_string = str(duration_closed)[0:9]
 		#		log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ', Door Opened \n')
 			else:							# If door just closed:
 				print('Door Closed')
 				time_closed = time
 				duration_open = time_closed - time_opened
-				duration_open_string = str(duration_closed)[0:10]
+				duration_open_string = str(duration_open)[2:9]
 
-				log_file.write(time.strftime('%a %Y-%m-%d %H:%M:%S') + duration_closed_string + ', Door opened for:' + duration_open_string + '\n'
+				log_file.write(time.strftime('%a %Y-%m-%d, %H:%M:%S, ') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
 		#		log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ', Door Closed \n')
 			os.system('rclone copy /home/pi/RFID/log-door.csv door-log3:door-access')
 		        print('Backup complete')

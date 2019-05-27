@@ -10,24 +10,32 @@ import os
 import subprocess
 from gpiozero import LED
 from time import sleep
-import pigpio
-from RPLCD.pigpio import CharLCD
+#import pigpio
+#from RPLCD.pigpio import CharLCD
+from RPLCD.gpio import CharLCD
+from RPi import GPIO
 
 led = LED(17)
+blue_backlight = LED(27)
+green_backlight = LED(22)
+red_backlight = LED(23)
 
-pi = pigpio.pi()
-lcd = CharLCD(pi,pin_rs=15, pin_rw=18, pin_e=16, pins_data=[21, 22, 23, 24],cols=20, rows=4, dotsize=8,charmap='A02',auto_linebreaks=True)
+print("define LCD")
+GPIO.setwarnings(False)
+lcd = CharLCD(cols=16, rows=2, pin_rs=26, pin_rw=24, pin_e=19, pins_data=[13, 6, 5, 11],numbering_mode=GPIO.BCM)
 
+#lcd = CharLCD(cols=16, rows=2, pin_rs=37, pin_rw=18, pin_e=35, pins_data=[33, 31, 29, 23], numbering_mode=GPIO.BOARD)
+print('lcd defined')
 
 ### Import whitelist
 
-with open('/home/pi/RFID/keyed-members') as whitelist:
+with open('/home/pi/RFID/members_list') as whitelist:
 	csv_reader = csv.reader(whitelist, delimiter=',')
 	line_count = 0
 	ID_list = []
 	names_list = []
 	nicknames_list = []
-	member_type = []
+	member_type_list = []
 	for row in csv_reader:
 		ID = row[0]
 		first_name = row[2]
@@ -38,7 +46,7 @@ with open('/home/pi/RFID/keyed-members') as whitelist:
 		ID_list.append(ID)
 		names_list.append(full_name)
 		nicknames_list.append(nickname)
-		member_type.append(member_type)
+		member_type_list.append(member_type)
 	print(ID_list)
 
 
@@ -54,6 +62,10 @@ shift = False
 done = False
 while True:
 	while not done:			## Get the character from the HID
+
+		blue_backlight.on()
+		lcd.cursor_pos = (0,3)
+		lcd.write_string('Swipe Badge')
 		buffer = fp.read(8)
 		for c in buffer:
 			if ord(c) > 0:	##  40 is carriage return which signifies we are done looking for characters
@@ -81,41 +93,55 @@ while True:
 
 		### Check the membership type
 		pos = ID_list.index(ss)
-		if member_type[pos] == 'keyed_membership':	# If keyed, open
+		if member_type_list[pos] == 'keyed_membership':	# If keyed, open
 
-			print('Welcome ' + nicknames_list[pos])
-	#		lcd.write_string('Access Granted')
+			print('Welcome ' + nicknames_list[pos] + '. Member type: ' + member_type_list[pos])
+			blue_backlight.off()
+			green_backlight.on()
+			lcd.clear()
+			lcd.write_string('Access Granted')
+			lcd.cursor_pos = (1,0)
+			lcd.write_string(nicknames_list[pos])
 			led.on()
 			sleep(2)
 			led.off()
+			lcd.clear()
+			green_backlight.off();blue_backlight.on()
 
 			log_file = open('/home/pi/RFID/log-door.csv', 'a')
-			log_file.write(time.strftime('%Y-%m-%d %H:%M%S') + ',' + ss ++ ',' + names_list[pos] + ',Approved \n')
+			log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + ss + ',' + names_list[pos] + ',Approved \n')
 			log_file.close()
 
-		if member_type[pos] == 'standard_membership':	# If standard, check the time
+		if member_type_list[pos] == 'standard_membership':	# If standard, check the time
 
 			if time_open < time < time_close:	# If within open hours, open
 
 				print('Welcome ' + nicknames_list[pos])
 	#			lcd.write_string('Access Granted')
 				led.on()
-				sleep(2)
+				sleep(3)
 				led.off()
 
 			else:					# If outside open hours, output to LCD
 				print('Please return during open hours')
 	#			lcd.write_string('Return after 4')
+				led.on()
+				sleep(2)
+				led.off()
+
 				log_file = open('/home/pi/RFID/log-door.csv','a')
-				log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ',' + ss + ',' + names_list[pos] + ',Wrong time \n')
+				log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + ss + ',' + names_list[pos] + ',Wrong time \n')
 				log_file.close()
+
+	#	else:
+	#		print('Error detecting membership type')
 
 	### If the user isn't found:
 	if ID_list.count(ss) == 0:
 		print('User not found.  Access Denied')
 		#lcd.write_string('Access DENIED')
 		log_file = open('/home/pi/RFID/log-door.csv', 'a')
-		log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ',' + ss + ', Unknown (ACCESS DENIED) \n')
+		log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + ss + ', Unknown (ACCESS DENIED) \n')
 		log_file.close()
 
 	### After completing checks, backup the new log file
