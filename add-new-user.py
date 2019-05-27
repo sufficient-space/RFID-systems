@@ -17,15 +17,21 @@ led = LED(17)
 with open('/home/pi/RFID/keyed-members') as whitelist:
 	csv_reader = csv.reader(whitelist, delimiter=',')
 	line_count = 0
-	ID_list = []
-	names_list = []
-	for row in csv_reader:
-		ID = row[0]
-		first_name = row[2]
-		last_name = row[1]
-		full_name = first_name+' '+last_name
-		ID_list.append(ID)
-		names_list.append(full_name)
+        ID_list = []
+        names_list = []
+        nicknames_list = []
+        member_type_list = []
+        for row in csv_reader:
+                ID = row[0]
+                first_name = row[2]
+                last_name = row[1]
+                nickname = row[3]
+                member_type = row[4]
+                full_name = first_name+' '+last_name
+                ID_list.append(ID)
+                names_list.append(full_name)
+                nicknames_list.append(nickname)
+                member_type_list.append(member_type)
 
 ### Request name
 
