@@ -89,9 +89,8 @@ done = False
 ### Begin run loop
 while True:
 	while not done:			## Get the character from the HID
-
-		blue_backlight.on()
-		lcd.cursor_pos = (0,3)
+		blue_backlight.on()	## Turn on the blue backlight
+		lcd.cursor_pos = (0,3)	## Set cursor pos on first line
 		lcd.write_string('Swipe Badge')
   
 		buffer = fp.read(8)
@@ -113,38 +112,45 @@ while True:
 						rfid_number += hid[ int(ord(c)) ]
 
 	### When an RFID is detected:
-	print rfid_number				# Print it
-	time = datetime.datetime.now()		# Define the current time
+	print rfid_number		## Print it
+	time = datetime.datetime.now()	## Define the current time
 
 	### Check whitelist
-	if ID_list.count(rfid_number) > 0:		# If the ID appears on the white list:
+	if ID_list.count(rfid_number) > 0: # If the ID appears on the white list:
 
 		### Check the membership type
-		pos = ID_list.index(rfid_number)
-		if member_type_list[pos] == 'keyed_membership':	# If keyed, open
+		pos = ID_list.index(rfid_number)		# Define lin in member list
+		if member_type_list[pos] == 'keyed_membership':	# If keyed: open
 
-			print('Welcome ' + nicknames_list[pos] + '. Member type: ' + member_type_list[pos])
+			## Open and print ID function here:
+			#open(nickname)
+			print('Welcome ' + nicknames_list[pos])
+			# Backlight flcker function(3)
 			blue_backlight.off()
 			green_backlight.on()
+			# Print output to LCD function goes here
 			lcd.clear()
 			lcd.write_string('Access Granted')
 			lcd.cursor_pos = (1,0)
 			lcd.write_string(nicknames_list[pos])
+			# Door unlock function goes here
+			#unlockDoor(2)
 			door_lock.on()
 			sleep(2)
 			door_lock.off()
 			lcd.clear()
 			green_backlight.off();blue_backlight.on()
-
+			# Log event function
 			log_file = open('/home/pi/RFID/log-door.csv', 'a')
 			log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ',' + names_list[pos] + ',Approved \n')
 			log_file.close()
 
-		if member_type_list[pos] == 'standard_membership':	# If standard, check the time
+		if member_type_list[pos] == 'standard_membership': # If standard: check the time
 
 			if time_open < time < time_close:	# If within open hours, open
 
 				print('Welcome ' + nicknames_list[pos])
+				# Door open function goes here
 	#			lcd.write_string('Access Granted')
 				door_lock.on()
 				sleep(3)
