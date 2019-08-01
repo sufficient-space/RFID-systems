@@ -28,7 +28,7 @@ print('lcd defined')
 
 ### Declare functions
 
-def backlight_blink(duration,loop_counter):
+def backlight_blink_green(duration,loop_counter):
     while loop_counter > 0:
         blue_backlight.off()
         sleep(duration)
@@ -38,6 +38,7 @@ def backlight_blink(duration,loop_counter):
         sleep(duration)
         blue_backlight.on()
         sleep(duration)
+	loop_counter = loop_counter - 1
 
 def access_granted():
 	print('Welcome ' + nicknames_list[pos] + '. Member type: ' + member_type_list[pos])
@@ -137,8 +138,7 @@ while True:
 			## Open and print ID function here:
 			#open(nickname)
 			print('Welcome ' + nicknames_list[pos])
-			# Backlight flcker function(3)
-            backlight_blink(0.4,3)
+			backlight_blink_green(0.08,2)		# Blink green twice for 0.08 s
 			blue_backlight.off()
 			green_backlight.on()
 			# Print output to LCD function goes here
