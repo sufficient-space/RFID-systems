@@ -37,7 +37,7 @@ try:	### Loop continuously
 
 		else: 				# If changed:
 		        time = datetime.datetime.now()				# deefine time
-			log_file = open('/home/pi/RFID/log-door.csv', 'a')	# Open log file in append mode
+			log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'r')	# Open log file in append mode
 
 			if door_is_open == True:				# If door just opened:
 				print('Door Opened')
@@ -51,13 +51,31 @@ try:	### Loop continuously
 				duration_open = time_closed - time_opened
 				duration_open_string = str(duration_open)[2:9]
 
-				log_file.write(time.strftime('%a %Y-%m-%d, %H:%M:%S, After') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
+				#log_file.write(time.strftime('%a %Y-%m-%d, %H:%M:%S, After') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
+				new_line = (time.strftime('%a %Y-%m-%d, %H:%M:%S, After') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
+				contents = log_file.readlines()
+				contents.insert(0, new_line)
+				log_file.close()
+				log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'w')
+				log_file.writelines(contents)
+				log_file.close()
+
+        #                log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'r')
+        #               log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + ss + ',' + names_list[pos] + ',Approved \n')
+        #                new_line = (time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + ss + ',' + names_list[pos] + ',Approved \n')
+        #                contents = log_file.readlines()
+         #               contents.insert(0, new_line)
+          #              log_file.close()
+           #             log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'w')
+            #            log_file.writelines(contents)
+             #           log_file.close()
+
 		#		log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ', Door Closed \n')
-			os.system('rclone copy /home/pi/RFID/log-door.csv door-log3:door-access')
+			os.system('rclone copy /home/pi/Desktop/RFID/log-door.csv door-log3:door-access')
 		        print('Backup complete')
 
 			prior_state = door_is_open
-			log_file.close()
+	#		log_file.close()
 
 		sleep(0.1)
 

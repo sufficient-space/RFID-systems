@@ -54,20 +54,20 @@ def access_granted():
 	lcd.clear()
 	green_backlight.off();blue_backlight.on()
 
-	log_file = open('/home/pi/RFID/log-door.csv', 'a')
+	log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'a')
 	log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ',' + names_list[pos] + ',Approved \n')
 	log_file.close()  
 
 def access_denied():        #The tab size in Spyder appears different than nano
     print('User not found.  Access Denied')
     #lcd.write_string('Access DENIED')
-    log_file = open('/home/pi/RFID/log-door.csv', 'a')
+    log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'a')
     log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ', Unknown (ACCESS DENIED) \n')
     log_file.close()
 
 ### Import whitelist
 
-with open('/home/pi/RFID/members_list') as whitelist:
+with open('/home/pi/Desktop/RFID/members_list') as whitelist:
 	csv_reader = csv.reader(whitelist, delimiter=',')
 	line_count = 0
 	ID_list = []
@@ -154,9 +154,19 @@ while True:
 			lcd.clear()
 			green_backlight.off();blue_backlight.on()
 			# Log event function
-			log_file = open('/home/pi/RFID/log-door.csv', 'a')
-			log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ',' + names_list[pos] + ',Approved \n')
-			log_file.close()
+
+                        log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'r')
+                        new_line = (time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ',' + names_list[pos] + ',Approved \n')
+                        contents = log_file.readlines()
+                        contents.insert(0, new_line)
+                        log_file.close()
+                        log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'w')
+                        log_file.writelines(contents)
+                        log_file.close()
+
+	#		log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'a')
+	#		log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ',' + names_list[pos] + ',Approved \n')
+	#		log_file.close()
 
 		if member_type_list[pos] == 'standard_membership': # If standard: check the time
 
@@ -187,12 +197,12 @@ while True:
 	if ID_list.count(rfid_number) == 0:
 		print('User not found.  Access Denied')
 		#lcd.write_string('Access DENIED')
-		log_file = open('/home/pi/RFID/log-door.csv', 'a')
+		log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'a')
 		log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ', Unknown (ACCESS DENIED) \n')
 		log_file.close()
 
 	### After completing checks, backup the new log file
-	os.system('rclone copy /home/pi/RFID/log-door.csv door-log3:door-access')
+	os.system('rclone copy /home/pi/Desktop/RFID/log-door.csv door-log3:door-access')
 	print('Backup complete')
 
 	rfid_number = ''
