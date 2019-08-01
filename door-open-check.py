@@ -51,7 +51,7 @@ try:	### Loop continuously
 				duration_open = time_closed - time_opened
 				duration_open_string = str(duration_open)[2:9]
 
-				log_file.write(time.strftime('%a %Y-%m-%d, %H:%M:%S, ') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
+				log_file.write(time.strftime('%a %Y-%m-%d, %H:%M:%S, After') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
 		#		log_file.write(time.strftime('%Y-%m-%d %H:%M:%S') + ', Door Closed \n')
 			os.system('rclone copy /home/pi/RFID/log-door.csv door-log3:door-access')
 		        print('Backup complete')
