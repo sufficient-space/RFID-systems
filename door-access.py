@@ -40,6 +40,18 @@ def backlight_blink_green(duration,loop_counter):
         sleep(duration)
 	loop_counter = loop_counter - 1
 
+def backlight_blink_red(duration,loop_counter):
+    while loop_counter > 0:
+        blue_backlight.off()
+        sleep(duration)
+        red_backlight.on()
+        sleep(duration)
+        red_backlight.off()
+        sleep(duration)
+        blue_backlight.on()
+        sleep(duration)
+        loop_counter = loop_counter - 1
+
 def access_granted():
 	print('Welcome ' + nicknames_list[pos] + '. Member type: ' + member_type_list[pos])
 	blue_backlight.off()
@@ -102,6 +114,7 @@ done = False
 while True:
 	### Wait for RFID
 	while not done:			## Get the character from the HID
+		lcd.clear()		## Clear the LCD before writing
 		blue_backlight.on()	## Turn on the blue backlight
 		lcd.cursor_pos = (0,3)	## Set cursor pos on first line
 		lcd.write_string('Swipe Badge')
@@ -195,11 +208,32 @@ while True:
 
 	### If the user isn't found:
 	if ID_list.count(rfid_number) == 0:
-		print('User not found.  Access Denied')
+		##print('User not found.  Access Denied')
 		#lcd.write_string('Access DENIED')
-		log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'a')
-		log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ', Unknown (ACCESS DENIED) \n')
-		log_file.close()
+		##log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'a')
+		##log_file.write(time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ', Unknown (ACCESS DENIED) \n')
+		##log_file.close()
+                backlight_blink_green(0.08,2)           # Blink green twice for 0.08 s
+                blue_backlight.off()
+                red_backlight.on()
+                # Print output to LCD function goes here
+                lcd.clear()
+                lcd.write_string('Unrecognized ID')
+                lcd.cursor_pos = (1,0)
+                lcd.write_string('Access Denied')
+		# Log the unknown ID
+                log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'r')			## Open the log file
+                new_line = (time.strftime('%a %Y-%m-%d,%H:%M:%S') + ',' + rfid_number + ',' +' Unknown ID,DENIED \n')	## Define the contents of the new line
+		print(new_line)
+                contents = log_file.readlines()
+                contents.insert(0, new_line)
+                log_file.close()
+                log_file = open('/home/pi/Desktop/RFID/log-door.csv', 'w')
+                log_file.writelines(contents)
+                log_file.close()
+
+                sleep(2)
+                red_backlight.off();blue_backlight.on()
 
 	### After completing checks, backup the new log file
 	os.system('rclone copy /home/pi/Desktop/RFID/log-door.csv door-log3:door-access')

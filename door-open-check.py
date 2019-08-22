@@ -52,7 +52,7 @@ try:	### Loop continuously
 				duration_open_string = str(duration_open)[2:9]
 
 				#log_file.write(time.strftime('%a %Y-%m-%d, %H:%M:%S, After') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
-				new_line = (time.strftime('%a %Y-%m-%d, %H:%M:%S, After') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
+				new_line = (time.strftime('%a %Y-%m-%d, %H:%M:%S, After ') + duration_closed_string + ', Opened for: ' + duration_open_string + '\n')
 				contents = log_file.readlines()
 				contents.insert(0, new_line)
 				log_file.close()
